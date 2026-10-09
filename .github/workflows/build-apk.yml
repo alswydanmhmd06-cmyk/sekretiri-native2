@@ -1,7 +1,7 @@
 name: Build Sekretiri APK
 
 on:
-  workflow_dispatch:        # تشغيل يدوي من تبويب Actions
+  workflow_dispatch:
   push:
     branches: [ main, master ]
 
@@ -18,11 +18,14 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      -- name: Setup Flutter
+      - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.29.3'
           channel: 'stable'
+
+      - name: Get dependencies
+        run: flutter pub get
 
       - name: Create signing keystore
         run: |
@@ -31,9 +34,6 @@ jobs:
             -storepass android -keypass android \
             -alias sekretiri -keyalg RSA -keysize 2048 -validity 10000 \
             -dname "CN=Sekretiri, OU=Dev, O=Sekretiri, L=Baghdad, S=Baghdad, C=IQ"
-
-      - name: Get dependencies
-        run: flutter pub get
 
       - name: Build release APK
         env:
