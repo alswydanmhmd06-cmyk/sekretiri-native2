@@ -1,7 +1,7 @@
 name: sekretiri_flutter
 description: Flutter client for Sekretiri Clinic.
 publish_to: "none"
-version: 0.2.3+5
+version: 0.2.5+6
 
 environment:
   sdk: ">=3.12.0 <4.0.0"
