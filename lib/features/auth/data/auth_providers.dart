@@ -47,6 +47,34 @@ class AuthController extends AsyncNotifier<AppUser?> {
     state = result;
   }
 
+  Future<void> registerPatient(Map<String, dynamic> body) async {
+    state = const AsyncLoading();
+    final result = await AsyncValue.guard(
+      () => _repository.registerPatient(body),
+    );
+    if (result.hasError) {
+      final error = result.error!;
+      final stackTrace = result.stackTrace!;
+      state = const AsyncData(null);
+      Error.throwWithStackTrace(error, stackTrace);
+    }
+    state = result;
+  }
+
+  Future<void> registerDoctor(Map<String, dynamic> body) async {
+    state = const AsyncLoading();
+    final result = await AsyncValue.guard(
+      () => _repository.registerDoctor(body),
+    );
+    if (result.hasError) {
+      final error = result.error!;
+      final stackTrace = result.stackTrace!;
+      state = const AsyncData(null);
+      Error.throwWithStackTrace(error, stackTrace);
+    }
+    state = result;
+  }
+
   Future<void> signOut() async {
     state = const AsyncLoading();
     await _repository.signOut();

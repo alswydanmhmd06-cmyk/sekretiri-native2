@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/theme/app_theme.dart';
+import '../../ads/presentation/ads_carousel.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -10,29 +12,21 @@ class WelcomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFF0C4A6E), Color(0xFFF8FAFC)],
-            stops: [0.42, 0.42],
-          ),
-        ),
-        child: SafeArea(
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 520),
+      backgroundColor: const Color(0xFF0C4A6E),
+      body: SafeArea(
+        bottom: false,
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 560),
+            child: SingleChildScrollView(
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // ── Hero section (on the teal gradient) ──
-                  Expanded(
-                    flex: 5,
-                    child: _HeroSection(),
-                  ),
-                  // ── Bottom section (white background) ──
-                  Expanded(
-                    flex: 4,
+                  // ── Hero section (teal) ──
+                  _HeroSection(),
+                  // ── White sheet: ads + actions ──
+                  Transform.translate(
+                    offset: const Offset(0, -24),
                     child: _BottomSection(),
                   ),
                 ],
@@ -52,20 +46,18 @@ class _HeroSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(28, 16, 28, 0),
+      padding: const EdgeInsets.fromLTRB(28, 16, 28, 40),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Language badge
           Align(
             alignment: AlignmentDirectional.centerStart,
             child: _LanguageBadge()
-              .animate()
-              .fadeIn(duration: 400.ms)
-              .slideY(begin: -0.15, end: 0),
+                .animate()
+                .fadeIn(duration: 400.ms)
+                .slideY(begin: -0.15, end: 0),
           ),
-          const Spacer(flex: 2),
-          // Logo + name
+          const SizedBox(height: 28),
           Row(
             children: [
               Container(
@@ -76,7 +68,10 @@ class _HeroSection extends StatelessWidget {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(18),
                 ),
-                child: Image.asset('assets/brand/logo.png', fit: BoxFit.contain),
+                child: Image.asset(
+                  'assets/brand/logo.png',
+                  fit: BoxFit.contain,
+                ),
               )
                   .animate()
                   .scale(
@@ -99,14 +94,13 @@ class _HeroSection extends StatelessWidget {
                   .slideX(begin: 0.2, end: 0),
             ],
           ),
-          const SizedBox(height: 28),
-          // Tagline
+          const SizedBox(height: 24),
           const Text(
             'رعاية أسهل،\nوتنظيم أفضل',
             style: TextStyle(
               color: AppTheme.textOnPrimary,
               height: 1.25,
-              fontSize: 36,
+              fontSize: 34,
               fontWeight: FontWeight.w700,
             ),
           )
@@ -114,7 +108,6 @@ class _HeroSection extends StatelessWidget {
               .fadeIn(delay: 250.ms, duration: 500.ms)
               .slideY(begin: 0.12, end: 0),
           const SizedBox(height: 14),
-          // Description
           const Text(
             'منصة تربط الطبيب والمريض لإدارة المواعيد\nوالانتظار والتواصل في مكان واحد.',
             style: TextStyle(
@@ -126,18 +119,22 @@ class _HeroSection extends StatelessWidget {
               .animate()
               .fadeIn(delay: 350.ms, duration: 500.ms)
               .slideY(begin: 0.12, end: 0),
-          const Spacer(flex: 3),
-          // Benefit chips
-          _BenefitChip(icon: Icons.calendar_month_rounded, label: 'مواعيد وقائمة انتظار واضحة')
+          const SizedBox(height: 24),
+          _BenefitChip(
+            icon: Icons.calendar_month_rounded,
+            label: 'مواعيد وقائمة انتظار واضحة',
+          )
               .animate()
               .fadeIn(delay: 450.ms, duration: 400.ms)
               .slideX(begin: 0.15, end: 0),
           const SizedBox(height: 10),
-          _BenefitChip(icon: Icons.medical_services_rounded, label: 'خدمات الطبيب والمريض في حساب واحد')
+          _BenefitChip(
+            icon: Icons.medical_services_rounded,
+            label: 'خدمات الطبيب والمريض في حساب واحد',
+          )
               .animate()
               .fadeIn(delay: 530.ms, duration: 400.ms)
               .slideX(begin: 0.15, end: 0),
-          const SizedBox(height: 20),
         ],
       ),
     );
@@ -145,14 +142,14 @@ class _HeroSection extends StatelessWidget {
 }
 
 // ══════════════════════════════════════════════════════════════
-//  Bottom — greeting, login button, social, note
+//  Bottom — ads carousel, greeting, login button, social, note
 // ══════════════════════════════════════════════════════════════
 class _BottomSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(28, 28, 28, 16),
+      padding: const EdgeInsets.fromLTRB(24, 24, 24, 28),
       decoration: const BoxDecoration(
         color: AppTheme.background,
         borderRadius: BorderRadius.vertical(top: Radius.circular(36)),
@@ -160,20 +157,21 @@ class _BottomSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Drag handle decoration
           Center(
             child: Container(
               width: 48,
               height: 4,
-              margin: const EdgeInsets.only(bottom: 20),
+              margin: const EdgeInsets.only(bottom: 22),
               decoration: BoxDecoration(
                 color: AppTheme.border,
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
-          )
+          ),
+          // ── Promotional doctor cards ──
+          const AdsCarousel()
               .animate()
-              .fadeIn(delay: 600.ms, duration: 300.ms),
+              .fadeIn(delay: 300.ms, duration: 450.ms),
           // Greeting
           Text('أهلاً بك', style: Theme.of(context).textTheme.headlineMedium)
               .animate()
@@ -187,8 +185,7 @@ class _BottomSection extends StatelessWidget {
               .animate()
               .fadeIn(delay: 700.ms, duration: 400.ms)
               .slideY(begin: 0.12, end: 0),
-          const SizedBox(height: 24),
-          // Login button
+          const SizedBox(height: 22),
           FilledButton.icon(
             onPressed: () => context.go('/login'),
             icon: const Icon(Icons.login_rounded),
@@ -203,20 +200,41 @@ class _BottomSection extends StatelessWidget {
                 color: const Color(0x22FFFFFF),
                 delay: 800.ms,
               ),
-          const SizedBox(height: 22),
-          // Social links
-          _SocialLinks()
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () => context.go('/register-patient'),
+                  icon: const Icon(Icons.person_add_alt_rounded, size: 20),
+                  label: const Text('تسجيل كمريض'),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () => context.go('/register-doctor'),
+                  icon: const Icon(Icons.medical_services_rounded, size: 20),
+                  label: const Text('تسجيل كطبيب'),
+                ),
+              ),
+            ],
+          )
               .animate()
-              .fadeIn(delay: 850.ms, duration: 400.ms),
-          const Spacer(),
-          // Note
+              .fadeIn(delay: 800.ms, duration: 400.ms)
+              .slideY(begin: 0.15, end: 0),
+          const SizedBox(height: 22),
+          _SocialLinks().animate().fadeIn(delay: 850.ms, duration: 400.ms),
+          const SizedBox(height: 22),
           const Text(
             'تجربة طبية حديثة لإدارة المواعيد والانتظار والتواصل.',
             textAlign: TextAlign.center,
-            style: TextStyle(color: AppTheme.textMuted, fontSize: 12, height: 1.6),
-          )
-              .animate()
-              .fadeIn(delay: 950.ms, duration: 400.ms),
+            style: TextStyle(
+              color: AppTheme.textMuted,
+              fontSize: 12,
+              height: 1.6,
+            ),
+          ).animate().fadeIn(delay: 950.ms, duration: 400.ms),
         ],
       ),
     );
@@ -319,7 +337,11 @@ class _SocialLinks extends StatelessWidget {
               label: 'انستغرام',
               url: 'https://www.instagram.com/sekr_teri?stkn=azV1MGtuZmhtcTc=',
               gradient: const LinearGradient(
-                colors: [Color(0xFFF09433), Color(0xFFDC2743), Color(0xFFBC1888)],
+                colors: [
+                  Color(0xFFF09433),
+                  Color(0xFFDC2743),
+                  Color(0xFFBC1888),
+                ],
               ),
             ),
             const SizedBox(width: 20),
@@ -354,9 +376,11 @@ class _SocialIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        // In production, use url_launcher package.
-        // For now, we keep the gesture detector ready.
+      onTap: () async {
+        final uri = Uri.tryParse(url);
+        if (uri != null) {
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+        }
       },
       child: Column(
         children: [
@@ -368,10 +392,11 @@ class _SocialIcon extends StatelessWidget {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: (gradient is LinearGradient
-                          ? (gradient as LinearGradient).colors.first
-                          : AppTheme.primary)
-                      .withValues(alpha: 0.25),
+                  color:
+                      (gradient is LinearGradient
+                              ? (gradient as LinearGradient).colors.first
+                              : AppTheme.primary)
+                          .withValues(alpha: 0.25),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),

@@ -284,6 +284,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                   .fadeIn(
                                       delay: 400.ms, duration: 350.ms)
                                   .slideY(begin: 0.08, end: 0),
+                              // Forgot password link
+                              Align(
+                                alignment: AlignmentDirectional.centerStart,
+                                child: TextButton(
+                                  onPressed: isLoading
+                                      ? null
+                                      : () => context.push('/forgot-password'),
+                                  child: const Text('نسيت كلمة المرور؟'),
+                                ),
+                              ).animate().fadeIn(delay: 420.ms, duration: 350.ms),
                               // Error message
                               if (_errorMessage != null) ...[
                                 const SizedBox(height: 16),
@@ -320,7 +330,28 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                   .fadeIn(
                                       delay: 450.ms, duration: 350.ms)
                                   .slideY(begin: 0.12, end: 0),
-                              const SizedBox(height: 18),
+                              const SizedBox(height: 14),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Text(
+                                    'ليس لديك حساب؟',
+                                    style: TextStyle(
+                                      color: AppTheme.textSecondary,
+                                    ),
+                                  ),
+                                  TextButton(
+                                    onPressed: isLoading
+                                        ? null
+                                        : () =>
+                                            context.go('/register-patient'),
+                                    child: const Text('إنشاء حساب جديد'),
+                                  ),
+                                ],
+                              )
+                                  .animate()
+                                  .fadeIn(delay: 500.ms, duration: 350.ms),
+                              const SizedBox(height: 6),
                               // Security note
                               const Text(
                                 'تُرسل بيانات الدخول إلى خادم التطبيق عبر HTTPS. لا تُحفظ كلمة المرور على الجهاز.',
